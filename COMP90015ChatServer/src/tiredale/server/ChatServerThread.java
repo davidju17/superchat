@@ -115,6 +115,9 @@ public class ChatServerThread implements Runnable
 
    }
 
+   
+   // DAVID THIS IS WHERE WE NEED TO IMPLEMENT LOOKUP IN THE DATABASE.
+   
    private synchronized void VerifyIdentity(JSONObject jsonObjRec)
    {
       String emailIn = jsonObjRec.get("email").toString();
