@@ -254,13 +254,13 @@ public class ChatServerMain {
 		BufferedInputStream bufferedInput = new BufferedInputStream(new FileInputStream("database.data"));
 		BufferedReader read = new BufferedReader(new InputStreamReader(bufferedInput, StandardCharsets.ISO_8859_1));
 		String line = "";
-		String identity = "guest0";
+		String identity = "";
 		boolean flag = false;
 		boolean flag2 = false;
 		boolean flag3 = false;
 
-		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
-		byte[] ecryptedPassword = "nakgdajfoblsfbk".getBytes(StandardCharsets.ISO_8859_1);
+		byte[] salt = "".getBytes();
+		byte[] ecryptedPassword = "".getBytes();
 
 		while ((line = read.readLine()) != null) {
 

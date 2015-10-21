@@ -254,27 +254,30 @@ public class ChatServerMain {
 		BufferedInputStream bufferedInput = new BufferedInputStream(new FileInputStream("database.data"));
 		BufferedReader read = new BufferedReader(new InputStreamReader(bufferedInput, StandardCharsets.ISO_8859_1));
 		String line = "";
-		String identity = "guest0";
+		String identity = "";
 		boolean flag = false;
 		boolean flag2 = false;
 		boolean flag3 = false;
 
-		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
-		byte[] ecryptedPassword = "nakgdajfoblsfbk".getBytes(StandardCharsets.ISO_8859_1);
+		byte[] salt = null;
+		byte[] ecryptedPassword = null;
 
 		while ((line = read.readLine()) != null) {
 
 			if (flag3 == true) {
 				identity = line;
+				name.setIdentity(identity);
 				flag3 = false;
 			}
 			if (flag2 == true) {
 				ecryptedPassword = line.getBytes(StandardCharsets.ISO_8859_1);
+				name.setEncryptedPassword(ecryptedPassword);
 				flag2 = false;
 				flag3 = true;
 			}
 			if (flag == true) {
 				salt = line.getBytes(StandardCharsets.ISO_8859_1);
+				name.setSalt(salt);
 				flag = false;
 				flag2 = true;
 			}
@@ -283,10 +286,6 @@ public class ChatServerMain {
 			}
 
 		}
-		name.setIdentity(identity);
-		name.setEncryptedPassword(ecryptedPassword);
-		name.setSalt(salt);
-		
 		read.close();
 	}
 
