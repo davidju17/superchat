@@ -1,11 +1,20 @@
 package tiredale.server;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -15,9 +24,11 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import java.io.File;
+
 public class ChatServerMain
 {
-   // Array list for storing references to server-side ChatServerThread for each
+	// Array list for storing references to server-side ChatServerThread for each
    // client connection, as well as current room lists.
    private static ArrayList<ChatServerThread> clientList =
             new ArrayList<ChatServerThread>();
@@ -33,14 +44,25 @@ public class ChatServerMain
 
    public static void main(String[] args) throws IOException
    {
-      // Just call method doMain, outlined below.
+	   System.out.println("Start main");
+	   // Just call method doMain, outlined below.
       new ChatServerMain().doMain(args);
+      
+      
    }
 
    // Method required to enable command line parser.
    public void doMain(String[] args) throws IOException
    {
-      CmdLineParser parser = new CmdLineParser(this);
+	   System.out.println("Start domain");
+	   
+	   CmdLineParser parser = new CmdLineParser(this);
+      File file = new File("database.data");
+
+		// if file does not exists, then create it
+		if (!file.exists()) {
+			file.createNewFile();
+		}
 
       try
       {
@@ -168,5 +190,76 @@ public class ChatServerMain
       roomList.remove(roomIndex);
       ChatServerRoom.depRoomCount();
    }
+   // Methods to authenticate password
+	public synchronized static boolean authenticate(String attemptedPassword,
+			byte[] encryptedPassword, byte[] salt)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+		System.out.println(encryptedPassword+" salt "+salt);
+
+		// Encrypt the clear-text password using the same salt that was used to
+		// encrypt the original password
+		byte[] encryptedAttemptedPassword = getEncryptedPassword(
+				attemptedPassword, salt);
+		// Authentication succeeds if encrypted password that the user entered
+		// is equal to the stored hash
+		return Arrays.equals(encryptedAttemptedPassword, encryptedPassword);
+	}
+
+	// Encrypt Password
+	public synchronized static byte[] getEncryptedPassword(String password, byte[] salt)
+			throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+		// PBKDF2 with SHA-1 as the hashing algorithm. Note that the NIST
+		// specifically names SHA-1 as an acceptable hashing algorithm for
+		// PBKDF2
+		String algorithm = "PBKDF2WithHmacSHA1";
+		// SHA-1 generates 160 bit hashes, so that's what makes sense here
+		int derivedKeyLength = 160;
+		// Pick an iteration count that works for you. The NIST recommends at
+		// least 1,000 iterations:
+		// http://csrc.nist.gov/publications/nistpubs/800-132/nist-sp800-132.pdf
+		// iOS 4.x reportedly uses 10,000:
+		// http://blog.crackpassword.com/2010/09/smartphone-forensics-cracking-blackberry-backup-passwords/
+
+		int iterations = 20000;
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations,
+				derivedKeyLength);
+		SecretKeyFactory f = SecretKeyFactory.getInstance(algorithm);
+		return f.generateSecret(spec).getEncoded();
+	}
+
+	// generateSalt is every time a new customer is coming
+	public synchronized static byte[] generateSalt() throws NoSuchAlgorithmException {
+
+		// VERY important to use SecureRandom instead of just Random
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+
+		// Generate a 8 byte (64 bit) salt as recommended by RSA PKCS5
+		byte[] salt = new byte[8];
+		random.nextBytes(salt);
+		return salt;
+
+	}
+	public static synchronized void writeToFile(String username,byte[] saltUserName,
+			byte[] password, String identity) throws IOException {
+
+		BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream("database.data",true));
+//		BufferedWriter out = new BufferedWriter(new FileWriter(
+//				file.getAbsoluteFile(), true));
+//		out.write(username + "#" + saltUserName + "#"+ password + "#" + identity);
+//		out.newLine();
+//		out.close();
+		bufferedOut.write(username.getBytes());
+		bufferedOut.write("\n".getBytes());
+		bufferedOut.write(saltUserName);
+		bufferedOut.write("\n".getBytes());
+		bufferedOut.write(password);
+		bufferedOut.write("\n".getBytes());
+		bufferedOut.write(identity.getBytes());
+		bufferedOut.write("\n".getBytes());
+		
+		bufferedOut.close();
+			
+	}
 
 }

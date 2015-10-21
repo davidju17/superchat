@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
@@ -123,7 +125,8 @@ public class ChatServerThread implements Runnable
       String passwordIn = jsonObjRec.get("password").toString();
       String flagRec = jsonObjRec.get("flag").toString();
       boolean loginSuccess = true;
-
+      
+      	
       // Initialise the email, password and currentid attributes based on the
       // emailIn and passwordIn provided.
 
@@ -172,12 +175,30 @@ public class ChatServerThread implements Runnable
             // local variables for saving to database.
             email = jsonObjRec.get("email").toString();
             password = jsonObjRec.get("password").toString();
+          
+            //Generate unique salt for this new guest
+    		byte[] salt;
+			try {
+				salt = ChatServerMain.generateSalt();
+	    		//System.out.println(salt);
+	    		
+	    		//EncryptedPassword
+	    		byte[] passwordEncrytedByte =ChatServerMain.getEncryptedPassword(password, salt);
+	    		//System.out.println(passwordEncrytedByte);    		
+	    		
+	            // Initial login produces assigned guestId.
+	            CreateName();
+	            ChatServerMain.writeToFile(email, salt, passwordEncrytedByte, identity);
+	            
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (InvalidKeySpecException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    		
 
-            // Need to have here a way of copying to database.
-            // What kind of exception could be thrown here?
-
-            // Initial login produces assigned guestId.
-            CreateName();
 
             authenticated = true; // As long as no issue with saving to
                                   // database.
