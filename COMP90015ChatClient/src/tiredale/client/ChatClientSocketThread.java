@@ -15,8 +15,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import java.util.Scanner;
-
 @SuppressWarnings("unchecked")
 public class ChatClientSocketThread implements Runnable
 {
@@ -44,7 +42,7 @@ public class ChatClientSocketThread implements Runnable
    @Override
    public void run()
    {
-      System.setProperty("javax.net.ssl.trustStore", "C:\\Coding\\servcert");
+      System.setProperty("javax.net.ssl.trustStore", "servcert");
       System.setProperty("javax.net.ssl.trustStorePassword", "12345678");
 
       SSLSocketFactory factory =

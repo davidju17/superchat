@@ -2,11 +2,8 @@ package tiredale.server;
 
 import java.util.*;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -53,7 +50,7 @@ public class ChatServerMain
          parser.printUsage(System.err);
       }
 
-      System.setProperty("javax.net.ssl.keyStore", "C:\\Coding\\servcert");
+      System.setProperty("javax.net.ssl.keyStore", "servcert");
       System.setProperty("javax.net.ssl.keyStorePassword", "12345678");
 
       // Create server socket and initalises the system ready to accept incomign
