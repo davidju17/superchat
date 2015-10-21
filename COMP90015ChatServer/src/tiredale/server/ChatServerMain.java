@@ -31,308 +31,366 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 
-public class ChatServerMain {
-	// Array list for storing references to server-side ChatServerThread for
-	// each
-	// client connection, as well as current room lists.
-	private static ArrayList<ChatServerThread> clientList = new ArrayList<ChatServerThread>();
-	private static ArrayList<ChatServerRoom> roomList = new ArrayList<ChatServerRoom>();
-	private static ArrayList<String> authenticatedUserList = new ArrayList<String>();
+public class ChatServerMain
+{
+   // Array list for storing references to server-side ChatServerThread for
+   // each
+   // client connection, as well as current room lists.
+   private static ArrayList<ChatServerThread> clientList =
+            new ArrayList<ChatServerThread>();
+   private static ArrayList<ChatServerRoom> roomList =
+            new ArrayList<ChatServerRoom>();
+   private static ArrayList<String> authenticatedUserList =
+            new ArrayList<String>();
 
-	// Allows for port option at command line.
-	@Option(name = "-p", usage = "Defines the server port number.", required = false)
-	private static int port = 4444;
+   // Allows for port option at command line.
+   @Option(name = "-p", usage = "Defines the server port number.",
+            required = false)
+   private static int port = 4444;
 
-	public static void main(String[] args) throws IOException {
-		// Just call method doMain, outlined below.
-		new ChatServerMain().doMain(args);
+   public static void main(String[] args) throws IOException
+   {
+      // Just call method doMain, outlined below.
+      new ChatServerMain().doMain(args);
 
-	}
+   }
 
-	// Method required to enable command line parser.
-	public void doMain(String[] args) throws IOException {
-		System.out.println("Server in connecting");
+   // Method required to enable command line parser.
+   public void doMain(String[] args) throws IOException
+   {
+      System.out.println("Server in connecting");
 
-		CmdLineParser parser = new CmdLineParser(this);
-		File file = new File("database.data");
+      CmdLineParser parser = new CmdLineParser(this);
+      File file = new File("database.data");
 
-		// if file does not exists, then create it
-		if (!file.exists()) {
-			file.createNewFile();
-		}
+      // if file does not exists, then create it
+      if (!file.exists())
+      {
+         file.createNewFile();
+      }
 
-		try {
-			parser.parseArgument(args);
-		} catch (CmdLineException e) {
-			// In case wrong argument entered.
-			System.err.println(e.getMessage());
-			parser.printUsage(System.err);
-		}
+      try
+      {
+         parser.parseArgument(args);
+      }
+      catch (CmdLineException e)
+      {
+         // In case wrong argument entered.
+         System.err.println(e.getMessage());
+         parser.printUsage(System.err);
+      }
 
-		System.setProperty("javax.net.ssl.keyStore", "servcert");
-		System.setProperty("javax.net.ssl.keyStorePassword", "12345678");
+      System.setProperty("javax.net.ssl.keyStore", "servcert");
+      System.setProperty("javax.net.ssl.keyStorePassword", "12345678");
 
-		// Create server socket and initalises the system ready to accept
-		// incomign
-		// connections from clients.
-		SSLServerSocket serverSocket = null;
+      // Create server socket and initalises the system ready to accept
+      // incomign
+      // connections from clients.
+      SSLServerSocket serverSocket = null;
 
-		roomList.add(new ChatServerRoom("MainHall", ""));
+      roomList.add(new ChatServerRoom("MainHall", ""));
 
-		try {
-			// New ServerSocket created listening on port specified.
-			// serverSocket = new ServerSocket(port);
-			SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory
-					.getDefault();
+      try
+      {
+         // New ServerSocket created listening on port specified.
+         // serverSocket = new ServerSocket(port);
+         SSLServerSocketFactory factory =
+                  (SSLServerSocketFactory) SSLServerSocketFactory
+                           .getDefault();
 
-			serverSocket = (SSLServerSocket) factory.createServerSocket(port);
+         serverSocket = (SSLServerSocket) factory.createServerSocket(port);
 
-			while (true) {
-				// Server continually waits for a new connection on incoming
-				// socket.
-				SSLSocket socket = (SSLSocket) serverSocket.accept();
-				// When new incoming connection the server instantiates a new
-				// Socket
-				// and passes the new connection to this socket.
-				// The new socket dedicated to this client is then passed to a
-				// new
-				// thread which is defined by the ChatServerThread class which
-				// takes
-				// the new socket as a constructor argument.
-				clientList.add(new ChatServerThread(socket));
+         while (true)
+         {
+            // Server continually waits for a new connection on incoming
+            // socket.
+            SSLSocket socket = (SSLSocket) serverSocket.accept();
+            // When new incoming connection the server instantiates a new
+            // Socket
+            // and passes the new connection to this socket.
+            // The new socket dedicated to this client is then passed to a
+            // new
+            // thread which is defined by the ChatServerThread class which
+            // takes
+            // the new socket as a constructor argument.
+            clientList.add(new ChatServerThread(socket));
 
-				// We now have a new thread solely dedicated to the recently
-				// connected user. This user thread is then run - see
-				// ChatServerThread for details of this method.
-				new Thread(clientList.get(clientList.size() - 1)).start();
+            // We now have a new thread solely dedicated to the recently
+            // connected user. This user thread is then run - see
+            // ChatServerThread for details of this method.
+            new Thread(clientList.get(clientList.size() - 1)).start();
 
-				// Loops around ready to receive another connection.
-			}
+            // Loops around ready to receive another connection.
+         }
 
-			// To do when closing the server:
-			// Need to look at clientList one last time and then join all the
-			// remaining threads as they are closed.
+         // To do when closing the server:
+         // Need to look at clientList one last time and then join all the
+         // remaining threads as they are closed.
 
-		} catch (SocketException e) {
-			// Occurs if client connection is not accepted. In this case no
-			// state
-			// information of the user has been initilaised so no action is
-			// necessary.
-		}
+      }
+      catch (SocketException e)
+      {
+         // Occurs if client connection is not accepted. In this case no
+         // state
+         // information of the user has been initilaised so no action is
+         // necessary.
+      }
 
-		finally {
-			if (serverSocket != null)
-				serverSocket.close();
-		}
+      finally
+      {
+         if (serverSocket != null)
+            serverSocket.close();
+      }
 
-	}
+   }
 
-	// Getter and setter-like methods for accessing and modifying object
-	// references in the lists of clients and rooms. Synchronization is required
-	// to ensure no concurrency issues as these methods are called by different
-	// ChatServerThread instances.
+   // Getter and setter-like methods for accessing and modifying object
+   // references in the lists of clients and rooms. Synchronization is required
+   // to ensure no concurrency issues as these methods are called by different
+   // ChatServerThread instances.
 
-	public synchronized static ChatServerRoom getRoom(int roomId) {
-		return (ChatServerRoom) roomList.get(roomId);
-	}
+   public synchronized static ChatServerRoom getRoom(int roomId)
+   {
+      return (ChatServerRoom) roomList.get(roomId);
+   }
 
-	public synchronized static ChatServerThread getUser(int arrayId) {
-		return (ChatServerThread) clientList.get(arrayId);
-	}
+   public synchronized static ChatServerThread getUser(int arrayId)
+   {
+      return (ChatServerThread) clientList.get(arrayId);
+   }
 
-	public synchronized static Boolean authUserExists(String identity) {
-		if (authenticatedUserList.contains(identity)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+   public synchronized static Boolean authUserExists(String identity)
+   {
+      if (authenticatedUserList.contains(identity))
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
 
-	public synchronized static void addAuthUserIdentity(String newIdentity) {
-		System.out.println("Adding " + newIdentity + " to auth list");
-		authenticatedUserList.add(newIdentity);
-	}
+   public synchronized static void addAuthUserIdentity(String newIdentity)
+   {
+      System.out.println("Adding " + newIdentity + " to auth list");
+      authenticatedUserList.add(newIdentity);
+   }
 
-	public synchronized static void updateAuthUserIdentity(
-			String formerIdentity, String newIdentity) {
-		System.out.println("Replacing " + formerIdentity + " with "
-				+ newIdentity + " to auth list");
-		authenticatedUserList.remove(formerIdentity);
-		authenticatedUserList.add(newIdentity);
-		System.out.println(authenticatedUserList);
+   public synchronized static void updateAuthUserIdentity(
+                                                          String formerIdentity,
+                                                          String newIdentity)
+   {
+      System.out.println("Replacing " + formerIdentity + " with "
+                         + newIdentity + " to auth list");
+      authenticatedUserList.remove(formerIdentity);
+      authenticatedUserList.add(newIdentity);
+      System.out.println(authenticatedUserList);
 
-		// Save new identity store in database
-		try {
-			replaceFile(newIdentity, formerIdentity);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+      // Save new identity store in database
+      try
+      {
+         replaceFile(newIdentity, formerIdentity);
+      }
+      catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
-	}
+   }
 
-	public synchronized static void addRoom(String newRoomId, String identity) {
-		roomList.add(new ChatServerRoom(newRoomId, identity));
-	}
+   public synchronized static void addRoom(String newRoomId, String identity)
+   {
+      roomList.add(new ChatServerRoom(newRoomId, identity));
+   }
 
-	public synchronized static void delUser(int userIndex) {
-		clientList.remove(userIndex);
-	}
+   public synchronized static void delUser(int userIndex)
+   {
+      clientList.remove(userIndex);
+   }
 
-	public synchronized static void delRoom(int roomIndex) {
-		roomList.remove(roomIndex);
-		ChatServerRoom.depRoomCount();
-	}
+   public synchronized static void delRoom(int roomIndex)
+   {
+      roomList.remove(roomIndex);
+      ChatServerRoom.depRoomCount();
+   }
 
-	// Methods to authenticate password
-	public synchronized static boolean authenticate(String attemptedPassword,
-			byte[] encryptedPassword, byte[] salt)
-			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		System.out.println(encryptedPassword + " salt " + salt);
+   // Methods to authenticate password
+   public synchronized static boolean authenticate(String attemptedPassword,
+                                                   byte[] encryptedPassword,
+                                                   byte[] salt)
+            throws NoSuchAlgorithmException, InvalidKeySpecException
+   {
+      System.out.println(encryptedPassword + " salt " + salt);
 
-		// Encrypt the clear-text password using the same salt that was used to
-		// encrypt the original password
-		byte[] encryptedAttemptedPassword = getEncryptedPassword(
-				attemptedPassword, salt);
-		// Authentication succeeds if encrypted password that the user entered
-		// is equal to the stored hash
-		return Arrays.equals(encryptedAttemptedPassword, encryptedPassword);
-	}
+      // Encrypt the clear-text password using the same salt that was used to
+      // encrypt the original password
+      byte[] encryptedAttemptedPassword =
+               getEncryptedPassword(
+                                    attemptedPassword, salt);
+      // Authentication succeeds if encrypted password that the user entered
+      // is equal to the stored hash
+      return Arrays.equals(encryptedAttemptedPassword, encryptedPassword);
+   }
 
-	// Encrypt Password
-	public synchronized static byte[] getEncryptedPassword(String password,
-			byte[] salt) throws NoSuchAlgorithmException,
-			InvalidKeySpecException {
+   // Encrypt Password
+   public synchronized static byte[] getEncryptedPassword(String password,
+                                                          byte[] salt)
+            throws NoSuchAlgorithmException,
+            InvalidKeySpecException
+   {
 
-		// PBKDF2 with SHA-1 as the hashing algorithm. Note that the NIST
-		// specifically names SHA-1 as an acceptable hashing algorithm for
-		// PBKDF2
-		String algorithm = "PBKDF2WithHmacSHA1";
-		// SHA-1 generates 160 bit hashes, so that's what makes sense here
-		int derivedKeyLength = 160;
-		// Pick an iteration count that works for you. The NIST recommends at
-		// least 1,000 iterations:
-		// http://csrc.nist.gov/publications/nistpubs/800-132/nist-sp800-132.pdf
-		// iOS 4.x reportedly uses 10,000:
-		// http://blog.crackpassword.com/2010/09/smartphone-forensics-cracking-blackberry-backup-passwords/
+      // PBKDF2 with SHA-1 as the hashing algorithm. Note that the NIST
+      // specifically names SHA-1 as an acceptable hashing algorithm for
+      // PBKDF2
+      String algorithm = "PBKDF2WithHmacSHA1";
+      // SHA-1 generates 160 bit hashes, so that's what makes sense here
+      int derivedKeyLength = 160;
+      // Pick an iteration count that works for you. The NIST recommends at
+      // least 1,000 iterations:
+      // http://csrc.nist.gov/publications/nistpubs/800-132/nist-sp800-132.pdf
+      // iOS 4.x reportedly uses 10,000:
+      // http://blog.crackpassword.com/2010/09/smartphone-forensics-cracking-blackberry-backup-passwords/
 
-		int iterations = 20000;
-		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations,
-				derivedKeyLength);
-		SecretKeyFactory f = SecretKeyFactory.getInstance(algorithm);
-		return f.generateSecret(spec).getEncoded();
-	}
+      int iterations = 20000;
+      KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations,
+                                    derivedKeyLength);
+      SecretKeyFactory f = SecretKeyFactory.getInstance(algorithm);
+      return f.generateSecret(spec).getEncoded();
+   }
 
-	// generateSalt is every time a new customer is coming
-	public synchronized static byte[] generateSalt()
-			throws NoSuchAlgorithmException {
+   // generateSalt is every time a new customer is coming
+   public synchronized static byte[] generateSalt()
+            throws NoSuchAlgorithmException
+   {
 
-		// VERY important to use SecureRandom instead of just Random
-		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+      // VERY important to use SecureRandom instead of just Random
+      SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 
-		// Generate a 8 byte (64 bit) salt as recommended by RSA PKCS5
-		byte[] salt = new byte[8];
-		random.nextBytes(salt);
-		return salt;
+      // Generate a 8 byte (64 bit) salt as recommended by RSA PKCS5
+      byte[] salt = new byte[8];
+      random.nextBytes(salt);
+      return salt;
 
-	}
+   }
 
-	public static synchronized void writeToFile(String username,
-			byte[] saltUserName, byte[] password, String identity)
-			throws IOException {
+   public static synchronized void writeToFile(String username,
+                                               byte[] saltUserName,
+                                               byte[] password, String identity)
+            throws IOException
+   {
 
-		BufferedOutputStream bufferedOut = new BufferedOutputStream(
-				new FileOutputStream("database.data", true));
+      BufferedOutputStream bufferedOut =
+               new BufferedOutputStream(
+                                        new FileOutputStream("database.data",
+                                                             true));
 
-		bufferedOut.write(username.getBytes());
-		bufferedOut.write("\n".getBytes());
-		bufferedOut.write(saltUserName);
-		bufferedOut.write("\n".getBytes());
-		bufferedOut.write(password);
-		bufferedOut.write("\n".getBytes());
-		bufferedOut.write(identity.getBytes());
-		bufferedOut.write("\n".getBytes());
+      bufferedOut.write(username.getBytes());
+      bufferedOut.write("\n".getBytes());
+      bufferedOut.write(saltUserName);
+      bufferedOut.write("\n".getBytes());
+      bufferedOut.write(password);
+      bufferedOut.write("\n".getBytes());
+      bufferedOut.write(identity.getBytes());
+      bufferedOut.write("\n".getBytes());
 
-		bufferedOut.close();
+      bufferedOut.close();
 
-	}
+   }
 
-	public static synchronized void readFile(String username,
-			ChatServerThread name) throws IOException {
-		BufferedInputStream bufferedInput = new BufferedInputStream(
-				new FileInputStream("database.data"));
-		BufferedReader read = new BufferedReader(new InputStreamReader(
-				bufferedInput, StandardCharsets.ISO_8859_1));
-		String line = "";
-		String identity = "guest0";
-		boolean flag = false;
-		boolean flag2 = false;
-		boolean flag3 = false;
+   public static synchronized void readFile(String username,
+                                            ChatServerThread name)
+            throws IOException
+   {
+      BufferedInputStream bufferedInput =
+               new BufferedInputStream(
+                                       new FileInputStream("database.data"));
+      BufferedReader read =
+               new BufferedReader(
+                                  new InputStreamReader(
+                                                        bufferedInput,
+                                                        StandardCharsets.ISO_8859_1));
+      String line = "";
+      String identity = "guest0";
+      boolean flag = false;
+      boolean flag2 = false;
+      boolean flag3 = false;
 
-		// initialise in case username does not exit
-		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
-		byte[] ecryptedPassword = "nakgdajfoblsfbk"
-				.getBytes(StandardCharsets.ISO_8859_1);
+      // initialise in case username does not exit
+      byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
+      byte[] ecryptedPassword = "nakgdajfoblsfbk"
+               .getBytes(StandardCharsets.ISO_8859_1);
 
-		while ((line = read.readLine()) != null) {
+      while ((line = read.readLine()) != null)
+      {
 
-			if (flag3 == true) {
-				identity = line;
-				flag3 = false;
-			}
-			if (flag2 == true) {
-				ecryptedPassword = line.getBytes(StandardCharsets.ISO_8859_1);
-				flag2 = false;
-				flag3 = true;
-			}
-			if (flag == true) {
-				salt = line.getBytes(StandardCharsets.ISO_8859_1);
-				flag = false;
-				flag2 = true;
-			}
-			if (line.equals(username)) {
-				flag = true;
-			}
+         if (flag3 == true)
+         {
+            identity = line;
+            flag3 = false;
+         }
+         if (flag2 == true)
+         {
+            ecryptedPassword = line.getBytes(StandardCharsets.ISO_8859_1);
+            flag2 = false;
+            flag3 = true;
+         }
+         if (flag == true)
+         {
+            salt = line.getBytes(StandardCharsets.ISO_8859_1);
+            flag = false;
+            flag2 = true;
+         }
+         if (line.equals(username))
+         {
+            flag = true;
+         }
 
-		}
-		name.setIdentity(identity);
-		name.setEncryptedPassword(ecryptedPassword);
-		name.setSalt(salt);
+      }
+      name.setIdentity(identity);
+      name.setEncryptedPassword(ecryptedPassword);
+      name.setSalt(salt);
 
-		read.close();
-	}
+      read.close();
+   }
 
-	public static synchronized void replaceFile(String newidentity,
-			String formerIdentity) throws IOException {
+   public static synchronized void replaceFile(String newidentity,
+                                               String formerIdentity)
+            throws IOException
+   {
 
-		List<String> lines = new ArrayList<String>();
-		String line = "";
-		String putData = null;
-		BufferedReader br = null;
-		BufferedWriter bw = null;
+      List<String> lines = new ArrayList<String>();
+      String line = "";
+      String putData = null;
+      BufferedReader br = null;
+      BufferedWriter bw = null;
 
-		br = new BufferedReader(new FileReader("database.data"));
+      br = new BufferedReader(new FileReader("database.data"));
 
-		while ((line = br.readLine()) != null) {
+      while ((line = br.readLine()) != null)
+      {
 
-			if (line.equals(formerIdentity)) {
-				line = line.replace(formerIdentity, newidentity);
+         if (line.equals(formerIdentity))
+         {
+            line = line.replace(formerIdentity, newidentity);
 
-			}
-			lines.add(line);
-		}
+         }
+         lines.add(line);
+      }
 
-		br.close();
+      br.close();
 
-		bw = new BufferedWriter(new FileWriter("database.data"));
+      bw = new BufferedWriter(new FileWriter("database.data"));
 
-		for (String s : lines) {
-			bw.write(s);
-			bw.write("\n");
+      for (String s : lines)
+      {
+         bw.write(s);
+         bw.write("\n");
 
-		}
-		bw.close();
+      }
+      bw.close();
 
-	}
+   }
 
 }

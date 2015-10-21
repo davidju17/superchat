@@ -211,6 +211,9 @@ public class ChatClientSocketThread implements Runnable
    public void readJSONInput(JSONObject jsonObjIn) throws IOException
    {
       // Processes incoming message depending on type.
+      
+      //System.out.println("Message client in");
+      //System.out.println(jsonObjIn);
 
       switch ((String) jsonObjIn.get("type"))
       {
@@ -628,7 +631,7 @@ public class ChatClientSocketThread implements Runnable
    }
 
    private static void SendMessage(String message, OutputStreamWriter out)
-   {
+   {    
       // Message will be on the command line when sent.
       // Generate JSON object for message to send to server.
       JSONObject jsonObjSent = new JSONObject();
@@ -637,6 +640,9 @@ public class ChatClientSocketThread implements Runnable
 
       // Send message to server.
       SendJsonObject(jsonObjSent, out);
+      
+      System.out.println("Message client out");
+      System.out.println(jsonObjSent);
    }
 
    private void ReceiveMessage(JSONObject jsonObjSent)
