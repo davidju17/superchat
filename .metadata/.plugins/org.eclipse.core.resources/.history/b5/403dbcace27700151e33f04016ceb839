@@ -11,8 +11,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.SocketException;
@@ -44,6 +42,7 @@ public class ChatServerMain {
 	private static int port = 4444;
 
 	public static void main(String[] args) throws IOException {
+		System.out.println("Start main");
 		// Just call method doMain, outlined below.
 		new ChatServerMain().doMain(args);
 
@@ -51,7 +50,7 @@ public class ChatServerMain {
 
 	// Method required to enable command line parser.
 	public void doMain(String[] args) throws IOException {
-		System.out.println("Server in connecting");
+		System.out.println("Start domain");
 
 		CmdLineParser parser = new CmdLineParser(this);
 		File file = new File("database.data");
@@ -162,12 +161,7 @@ public class ChatServerMain {
 		System.out.println(authenticatedUserList);
 
 		// Save new identity store in database
-		try {
-			replaceFile(newIdentity, formerIdentity);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 
 	}
 
@@ -257,22 +251,18 @@ public class ChatServerMain {
 
 	}
 
-	public static synchronized void readFile(String username,
-			ChatServerThread name) throws IOException {
-		BufferedInputStream bufferedInput = new BufferedInputStream(
-				new FileInputStream("database.data"));
-		BufferedReader read = new BufferedReader(new InputStreamReader(
-				bufferedInput, StandardCharsets.ISO_8859_1));
+	public static synchronized void readFile(String username,ChatServerThread name) throws IOException {
+		BufferedInputStream bufferedInput = new BufferedInputStream(new FileInputStream("database.data"));
+		BufferedReader read = new BufferedReader(new InputStreamReader(bufferedInput, StandardCharsets.ISO_8859_1));
 		String line = "";
 		String identity = "guest0";
 		boolean flag = false;
 		boolean flag2 = false;
 		boolean flag3 = false;
-
-		// initialise in case username does not exit
+		
+		//initialise in case username does not exit
 		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
-		byte[] ecryptedPassword = "nakgdajfoblsfbk"
-				.getBytes(StandardCharsets.ISO_8859_1);
+		byte[] ecryptedPassword = "nakgdajfoblsfbk".getBytes(StandardCharsets.ISO_8859_1);
 
 		while ((line = read.readLine()) != null) {
 
@@ -298,41 +288,8 @@ public class ChatServerMain {
 		name.setIdentity(identity);
 		name.setEncryptedPassword(ecryptedPassword);
 		name.setSalt(salt);
-
+		
 		read.close();
-	}
-
-	public static synchronized void replaceFile(String newidentity,
-			String formerIdentity) throws IOException {
-
-		List<String> lines = new ArrayList<String>();
-		String line = "";
-		String putData = null;
-		BufferedReader br = null;
-		BufferedWriter bw = null;
-
-		br = new BufferedReader(new FileReader("database.data"));
-
-		while ((line = br.readLine()) != null) {
-
-			if (line.equals(formerIdentity)) {
-				line = line.replace(formerIdentity, newidentity);
-
-			}
-			lines.add(line);
-		}
-
-		br.close();
-
-		bw = new BufferedWriter(new FileWriter("database.data"));
-
-		for (String s : lines) {
-			bw.write(s);
-			bw.write("\n");
-
-		}
-		bw.close();
-
 	}
 
 }

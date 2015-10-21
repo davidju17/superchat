@@ -11,8 +11,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.SocketException;
@@ -44,6 +42,7 @@ public class ChatServerMain {
 	private static int port = 4444;
 
 	public static void main(String[] args) throws IOException {
+		System.out.println("Start main");
 		// Just call method doMain, outlined below.
 		new ChatServerMain().doMain(args);
 
@@ -51,7 +50,7 @@ public class ChatServerMain {
 
 	// Method required to enable command line parser.
 	public void doMain(String[] args) throws IOException {
-		System.out.println("Server in connecting");
+		System.out.println("Start domain");
 
 		CmdLineParser parser = new CmdLineParser(this);
 		File file = new File("database.data");
@@ -168,6 +167,7 @@ public class ChatServerMain {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	
 
 	}
 
@@ -301,38 +301,32 @@ public class ChatServerMain {
 
 		read.close();
 	}
-
-	public static synchronized void replaceFile(String newidentity,
-			String formerIdentity) throws IOException {
-
-		List<String> lines = new ArrayList<String>();
+	public static synchronized void replaceFile(String newidentity,String formerIdentity) throws IOException {
+		BufferedInputStream bufferedInput = new BufferedInputStream(
+				new FileInputStream("database.data"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				bufferedInput, StandardCharsets.ISO_8859_1));
+		BufferedOutputStream bufferedOut = new BufferedOutputStream(
+				new FileOutputStream("database.data"));
 		String line = "";
-		String putData = null;
-		BufferedReader br = null;
-		BufferedWriter bw = null;
+		String putData;
+		
 
-		br = new BufferedReader(new FileReader("database.data"));
+		// initialise in case username does not exit
+		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
+		byte[] ecryptedPassword = "nakgdajfoblsfbk"
+				.getBytes(StandardCharsets.ISO_8859_1);
 
 		while ((line = br.readLine()) != null) {
-
-			if (line.equals(formerIdentity)) {
-				line = line.replace(formerIdentity, newidentity);
-
-			}
-			lines.add(line);
+			
+			if(line != null){ //***edited
+                putData = line.replaceAll(formerIdentity, newidentity);
+                bufferedOut.write(putData.getBytes());
+            }
 		}
-
+		//name.setIdentity(identity);
 		br.close();
-
-		bw = new BufferedWriter(new FileWriter("database.data"));
-
-		for (String s : lines) {
-			bw.write(s);
-			bw.write("\n");
-
-		}
-		bw.close();
-
 	}
+	
 
 }
