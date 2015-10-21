@@ -161,7 +161,6 @@ public class ChatServerMain {
 		System.out.println(authenticatedUserList);
 
 		// Save new identity store in database
-		
 
 	}
 
@@ -259,8 +258,7 @@ public class ChatServerMain {
 		boolean flag = false;
 		boolean flag2 = false;
 		boolean flag3 = false;
-		
-		//initialise in case username does not exit
+
 		byte[] salt = "sfdsfdsgfdhg".getBytes(StandardCharsets.ISO_8859_1);
 		byte[] ecryptedPassword = "nakgdajfoblsfbk".getBytes(StandardCharsets.ISO_8859_1);
 

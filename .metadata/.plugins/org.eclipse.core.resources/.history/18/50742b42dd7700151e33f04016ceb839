@@ -15,8 +15,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.google.common.primitives.Bytes;
-
 // Each thread represents a connection for a user.
 
 @SuppressWarnings("unchecked")
@@ -182,7 +180,9 @@ public class ChatServerThread implements Runnable {
 				e.printStackTrace();
 			} catch (InvalidKeySpecException e) {
 				e.printStackTrace();
-			}	
+			}
+
+
 			
 			break;
 		}
@@ -195,25 +195,13 @@ public class ChatServerThread implements Runnable {
 			// Generate unique salt for this new guest
 
 			try {
-				byte[] salt = ChatServerMain.generateSalt();				
+				byte[] salt = ChatServerMain.generateSalt();
+				// System.out.println(salt);
 
 				// EncryptedPassword
 				byte[] passwordEncrytedByte = ChatServerMain
 						.getEncryptedPassword(password, salt);
-				
-				//check if there is any newline byte in encrypted password or salt byte array
-				//if there is any generate new one until but does not contains any newline byte 
-				//and save in file for properly decodification.
-				byte newLine = (byte) '\n';
-				byte newLine2 = (byte) '\r';
-				
-				while(Bytes.contains(passwordEncrytedByte, newLine) || 	Bytes.contains(salt, newLine)||Bytes.contains(passwordEncrytedByte, newLine2) || 	Bytes.contains(salt, newLine2)){
-					//generate new salt
-					salt = ChatServerMain.generateSalt();
-					// generate new EncryptedPassword
-					passwordEncrytedByte = ChatServerMain
-							.getEncryptedPassword(password, salt);				
-				}	
+				// System.out.println(passwordEncrytedByte);
 
 				// Initial login produces assigned guestId.
 				CreateName();

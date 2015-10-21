@@ -204,10 +204,8 @@ public class ChatServerThread implements Runnable {
 				//check if there is any newline byte in encrypted password or salt byte array
 				//if there is any generate new one until but does not contains any newline byte 
 				//and save in file for properly decodification.
-				byte newLine = (byte) '\n';
-				byte newLine2 = (byte) '\r';
-				
-				while(Bytes.contains(passwordEncrytedByte, newLine) || 	Bytes.contains(salt, newLine)||Bytes.contains(passwordEncrytedByte, newLine2) || 	Bytes.contains(salt, newLine2)){
+				byte newLine = (byte) '\n';				
+				while(Bytes.contains(passwordEncrytedByte, newLine) || 	Bytes.contains(salt, newLine)){
 					//generate new salt
 					salt = ChatServerMain.generateSalt();
 					// generate new EncryptedPassword
