@@ -147,8 +147,6 @@ public class ChatServerThread implements Runnable {
 			JSONObject jsonObjIdInit = new JSONObject();
 			jsonObjIdInit.put("type", "identitychange");
 			try {
-				clientCount++;
-				
 				for (int i = 0; i < clientCount; i++) {
 					if (ChatServerMain.getUser(i).equals(this)) {
 						ChatServerMain.readFile(emailIn,ChatServerMain.getUser(i));
@@ -161,7 +159,12 @@ public class ChatServerThread implements Runnable {
 					loginSuccess = true;
 					authenticated = true;
 
-					jsonObjIdInit.put("identity", identity);					
+					// REMOVE WHEN ID IS OBTAINED FROM DATABASE.
+					identity = "updateThisId";
+
+					jsonObjIdInit.put("identity", identity);
+
+					clientCount++;
 
 					IdentityChange(jsonObjIdInit);
 				} else {
@@ -170,7 +173,6 @@ public class ChatServerThread implements Runnable {
 					jsonObjIdInit.put("identity", identity);
 					loginSuccess = false;
 					IdentityChange(jsonObjIdInit);
-					clientCount--;
 				}
 				
 			} catch (IOException e) {

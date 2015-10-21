@@ -161,7 +161,12 @@ public class ChatServerThread implements Runnable {
 					loginSuccess = true;
 					authenticated = true;
 
-					jsonObjIdInit.put("identity", identity);					
+					// REMOVE WHEN ID IS OBTAINED FROM DATABASE.
+					identity = "updateThisId";
+
+					jsonObjIdInit.put("identity", identity);
+
+					
 
 					IdentityChange(jsonObjIdInit);
 				} else {
