@@ -60,7 +60,17 @@ public class ChatServerRoom
 
    public synchronized void removeUser(String user)
    {
+      System.out.println(name+" contents "+roomContents);
+      
       this.roomContents.remove(user);
+      
+      System.out.println(name+" contents "+roomContents);
+      System.out.println("Room count = "+roomCount);
+      
+      System.out.println("");
+      System.out.println("ownerId = "+ownerId);
+      System.out.println("Room name: "+name);
+      System.out.println("Number of occupants = "+roomContents.size());
 
       // If the room is empty after the user is removed and the owner has left
       // then this room is deleted.
@@ -75,6 +85,9 @@ public class ChatServerRoom
             }
          }
       }
+      
+      System.out.println(name+" contents "+roomContents);
+      System.out.println("Room count = "+roomCount);
    }
 
    public synchronized static void depRoomCount()

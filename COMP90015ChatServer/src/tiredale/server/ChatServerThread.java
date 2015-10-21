@@ -115,9 +115,8 @@ public class ChatServerThread implements Runnable
 
    }
 
-   
    // DAVID THIS IS WHERE WE NEED TO IMPLEMENT LOOKUP IN THE DATABASE.
-   
+
    private synchronized void VerifyIdentity(JSONObject jsonObjRec)
    {
       String emailIn = jsonObjRec.get("email").toString();
@@ -139,22 +138,22 @@ public class ChatServerThread implements Runnable
             // This needs to compare the incoming login details to the
             // corresponding values in the database, where email address is used
             // to lookup.
-            
+
             JSONObject jsonObjIdInit = new JSONObject();
             jsonObjIdInit.put("type", "identitychange");
-            
+
             if (emailIn.equals(email) && passwordIn.equals(password))
             {
                loginSuccess = true;
                authenticated = true;
-               
+
                // REMOVE WHEN ID IS OBTAINED FROM DATABASE.
                identity = "updateThisId";
-               
+
                jsonObjIdInit.put("identity", identity);
 
                clientCount++;
-               
+
                IdentityChange(jsonObjIdInit);
             }
             else
@@ -190,14 +189,12 @@ public class ChatServerThread implements Runnable
             CreateName();
             break;
          }
-//         default:
-//         {
-//            // No other values possible.
-//         }
+         // default:
+         // {
+         // // No other values possible.
+         // }
       }
 
-      
-      
       // If login successful then add user to MainHall.
       if (loginSuccess)
       {
@@ -219,16 +216,28 @@ public class ChatServerThread implements Runnable
       do
       {
          test = false;
-         for (int i = 0; i < clientCount; i++)
+
+         // Checks is any authorised user has reserved the guestX username.
+         if (ChatServerMain.authUserExists("guest" + minInt))
          {
-            if (ChatServerMain.getUser(i).getIdentity()
-                     .equals("guest" + minInt))
+            minInt++;
+            test = true;
+         }
+         else
+         {
+            for (int i = 0; i < clientCount; i++)
             {
-               test = true;
-               minInt++;
-               continue;
+               // Checks is any active user has guestX username.
+               if (ChatServerMain.getUser(i).getIdentity()
+                        .equals("guest" + minInt))
+               {
+                  test = true;
+                  minInt++;
+                  continue;
+               }
             }
          }
+
       } while (test);
 
       String idInit = "guest" + minInt;
@@ -254,7 +263,11 @@ public class ChatServerThread implements Runnable
          case "login":
          {
             VerifyIdentity(jsonObjRec);
-            break;
+//            if (authenticated)
+//            {
+//               ChatServerMain.addAuthUserIdentity(identity);
+//            }
+//            break;
          }
 
          case "message":
@@ -353,13 +366,21 @@ public class ChatServerThread implements Runnable
       String newIdentity = jsonObjRec.get("identity").toString();
 
       Boolean nameAvailable = true;
-      for (int i = 0; i < clientCount; i++)
+      if (ChatServerMain.authUserExists(newIdentity))
       {
-         if (newIdentity.equals(ChatServerMain.getUser(i).getIdentity()
-                  .toString()))
+         nameAvailable = false;
+      }
+      else
+      {
+         for (int i = 0; i < clientCount; i++)
          {
-            nameAvailable = false;
-            break;
+            if (newIdentity.equals(ChatServerMain.getUser(i).getIdentity()
+                     .toString()))
+            {
+               nameAvailable = false;
+               break;
+            }
+
          }
       }
 
@@ -389,6 +410,8 @@ public class ChatServerThread implements Runnable
                roomCheck.getRoomContents().add(newIdentity);
             }
          }
+         // Updates the name in authorised room content list.
+         ChatServerMain.updateAuthUserIdentity(identity, newIdentity);
 
          // Updates the identity attribute of the client.
          identity = jsonObjRec.get("identity").toString();
@@ -430,6 +453,11 @@ public class ChatServerThread implements Runnable
       String userChanging = jsonObjRec.get("identity").toString();
       String requestedRoom = jsonObjRec.get("roomid").toString();
       String formerRoom = jsonObjRec.get("former").toString();
+
+      System.out.println("RoomChange in server");
+      System.out.println("currentRoomCount = " + currentRoomCount);
+
+      System.out.println(jsonObjRec);
 
       // Parses JSON request from client and prepares JSON response.
       JSONObject jsonObjServ = new JSONObject();
@@ -510,17 +538,20 @@ public class ChatServerThread implements Runnable
             // allow thread to end.
             this.active = false;
 
-            ChatServerMain.getRoom(currentRoom).removeUser(identity);
-
             for (int l = 0; l < currentRoomCount; l++)
             {
-               if (ChatServerMain.getRoom(l).getOwnerId().equals(identity))
+               System.out.println("Checking room " + l);
+               if (ChatServerMain.getRoom(l).getOwnerId().equals(identity) &&
+                   authenticated == false)
                {
                   ChatServerMain.getRoom(l).setOwnerId("");
                }
             }
 
+            ChatServerMain.getRoom(currentRoom).removeUser(identity);
+
             roomExists = true;
+            break;
          }
 
          // Otherwise just normal room change.
@@ -534,6 +565,7 @@ public class ChatServerThread implements Runnable
 
             if (!formerRoom.equals(""))
             {
+               System.out.println("User removed to change rooms.");
                ChatServerMain.getRoom(currentRoom)
                         .removeUser(jsonObjRec.get("identity").toString());
             }
@@ -598,6 +630,7 @@ public class ChatServerThread implements Runnable
          }
 
       }
+      System.out.println("RoomChange method end.");
    }
 
    // Used for:
@@ -670,9 +703,21 @@ public class ChatServerThread implements Runnable
       // Check valid name.
       String newRoomId = jsonObjRec.get("roomid").toString();
 
+      Boolean roomNameAvailable = true;
+
+      for (int i = 0; i < ChatServerRoom.getRoomCount(); i++)
+      {
+         if (ChatServerMain.getRoom(i).getRoomIdentity().equals(newRoomId))
+         {
+            roomNameAvailable = false;
+            break;
+         }
+      }
+
       if (newRoomId.matches("^[a-zA-Z]+[a-zA-Z0-9]*$") &&
           newRoomId.length() > 2 &&
-          newRoomId.length() < 33)
+          newRoomId.length() < 33 &&
+          roomNameAvailable)
       {
          ChatServerMain.addRoom(newRoomId, identity);
       }
@@ -823,9 +868,8 @@ public class ChatServerThread implements Runnable
    {
       try
       {
-         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
-         out.flush();         
+         out.flush();
       }
       catch (IOException e)
       {
@@ -877,6 +921,7 @@ public class ChatServerThread implements Runnable
       {
          if (ChatServerMain.getRoom(i).getRoomIdentity().equals(room))
          {
+            System.out.println("Unecpected removal of user.");
             ChatServerMain.getRoom(i).removeUser(identity);
             break;
          }

@@ -23,6 +23,8 @@ public class ChatServerMain
             new ArrayList<ChatServerThread>();
    private static ArrayList<ChatServerRoom> roomList =
             new ArrayList<ChatServerRoom>();
+   private static ArrayList<String> authenticatedUserList =
+            new ArrayList<String>();
 
    // Allows for port option at command line.
    @Option(name = "-p", usage = "Defines the server port number.",
@@ -53,7 +55,7 @@ public class ChatServerMain
 
       System.setProperty("javax.net.ssl.keyStore", "C:\\Coding\\servcert");
       System.setProperty("javax.net.ssl.keyStorePassword", "12345678");
-          
+
       // Create server socket and initalises the system ready to accept incomign
       // connections from clients.
       SSLServerSocket serverSocket = null;
@@ -66,7 +68,7 @@ public class ChatServerMain
          // serverSocket = new ServerSocket(port);
          SSLServerSocketFactory factory =
                   (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-         
+
          serverSocket = (SSLServerSocket) factory.createServerSocket(port);
 
          while (true)
@@ -79,7 +81,7 @@ public class ChatServerMain
             // thread which is defined by the ChatServerThread class which takes
             // the new socket as a constructor argument.
             clientList.add(new ChatServerThread(socket));
-            
+
             // We now have a new thread solely dedicated to the recently
             // connected user. This user thread is then run - see
             // ChatServerThread for details of this method.
@@ -121,6 +123,34 @@ public class ChatServerMain
    public synchronized static ChatServerThread getUser(int arrayId)
    {
       return (ChatServerThread) clientList.get(arrayId);
+   }
+
+   public synchronized static Boolean authUserExists(String identity)
+   {
+      if (authenticatedUserList.contains(identity))
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+
+   public synchronized static void addAuthUserIdentity(String newIdentity)
+   {
+      System.out.println("Adding " + newIdentity + " to auth list");
+      authenticatedUserList.add(newIdentity);
+   }
+
+   public synchronized static void updateAuthUserIdentity(String formerIdentity,
+                                                          String newIdentity)
+   {
+      System.out.println("Replacing " + formerIdentity + " with " +
+                         newIdentity + " to auth list");
+      authenticatedUserList.remove(formerIdentity);
+      authenticatedUserList.add(newIdentity);
+      System.out.println(authenticatedUserList);
    }
 
    public synchronized static void addRoom(String newRoomId, String identity)

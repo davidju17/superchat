@@ -16,15 +16,25 @@ public class ChatClientScannerThread implements Runnable
    {
       String input = "";
 
-      do
+      try
       {
+         // Sleeps the scanner thread for 1200ms to allow for certificate
+         // authentication.
+         Thread.sleep(1200);
+      }
+      catch (InterruptedException e1)
+      {
+         // No interruption expected.
+      }
+      
+      do
+      {         
          try
          {
-            // Sleeps the scanner thread for 1000ms to allow for certificate
-            // authentication, followed by message transmission, receipt and
-            // processing. This parameter may need to be tuned depending on the
-            // real network latency.
-            Thread.sleep(1000);
+            // Sleeps the scanner thread for 200ms to allow for message
+            // transmission, receipt and processing. This parameter may need to
+            // be tuned depending on the real network latency.
+            Thread.sleep(200);
 
             if (Thread.interrupted())
             {

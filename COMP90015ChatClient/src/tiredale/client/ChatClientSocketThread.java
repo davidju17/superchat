@@ -89,12 +89,12 @@ public class ChatClientSocketThread implements Runnable
             // For reading in and parsing JSON messages received from server.
             jsonObjIn = ReceiveJsonObject(in);
 
-            System.out.println(jsonObjIn);
-
             // Need to put that message into readJSONObject method.
             readJSONInput(jsonObjIn);
          }
 
+         
+         
          in.close();
          out.close();
          socket.close();
@@ -186,15 +186,12 @@ public class ChatClientSocketThread implements Runnable
 
    public void loginDetailsResponse()
    {
-      System.out.println("Checking login detials response");
       // This handles incoming message.
       // Create new objects for each JSON message.
       JSONObject jsonObjIn;
 
       // For reading in and parsing JSON messages received from server.
       jsonObjIn = ReceiveJsonObject(in);
-
-      System.out.println(jsonObjIn);
 
       // Need to put that message into readJSONObject method.
       currentUserId = jsonObjIn.get("identity").toString();
@@ -216,7 +213,6 @@ public class ChatClientSocketThread implements Runnable
    public void readJSONInput(JSONObject jsonObjIn) throws IOException
    {
       // Processes incoming message depending on type.
-      System.out.println(jsonObjIn);
 
       switch ((String) jsonObjIn.get("type"))
       {
@@ -364,8 +360,6 @@ public class ChatClientSocketThread implements Runnable
       String JSONIdentity = jsonObjRec.get("identity").toString();
       String JSONFormerIdentity = jsonObjRec.get("former").toString();
 
-      System.out.println("IdentityChangeResponse entered");
-
       // Check if newidentity message is meant for this user.
       if (JSONFormerIdentity.equals(currentUserId))
       {
@@ -390,9 +384,8 @@ public class ChatClientSocketThread implements Runnable
       }
 
       // This case only occurs if the user logs in for the first time.
-      else if (JSONFormerIdentity.equals(""))
+      else if (JSONFormerIdentity.equals("") && JSONIdentity.equals(currentUserId))
       {
-         currentUserId = jsonObjRec.get("identity").toString();
          currentRoom = "MainHall";
          message = "Connected to " + serverAddress + " as " + currentUserId;
       }
@@ -659,7 +652,6 @@ public class ChatClientSocketThread implements Runnable
    {
       try
       {
-         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
          out.flush();
       }
