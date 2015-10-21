@@ -3,7 +3,6 @@ package tiredale.client;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.json.simple.JSONObject;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
