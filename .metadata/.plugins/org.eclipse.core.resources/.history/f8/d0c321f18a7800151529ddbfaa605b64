@@ -172,9 +172,7 @@ public class ChatServerThread implements Runnable
             jsonObjIdInit.put("type", "identitychange");
             try
             {
-            	clientCount++;
-            	
-            	for (int i = 0; i < clientCount; i++)
+               for (int i = 0; i < clientCount; i++)
                {
                   if (ChatServerMain.getUser(i).equals(this))
                   {
@@ -192,7 +190,7 @@ public class ChatServerThread implements Runnable
 
                   jsonObjIdInit.put("identity", identity);
 
-                  
+                  clientCount++;
                   
                   IdentityChange(jsonObjIdInit);
                }
@@ -203,7 +201,6 @@ public class ChatServerThread implements Runnable
                   jsonObjIdInit.put("identity", identity);
                   loginSuccess = false;
                   IdentityChange(jsonObjIdInit);
-                  clientCount--;
                }
 
             }
