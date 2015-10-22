@@ -107,9 +107,6 @@ public class ChatServerThread implements Runnable
             obj = JSONValue.parse(msgIn);
             jsonObjRec = (JSONObject) obj;
 
-            // System.out.println("Message into server:");
-            // System.out.println(jsonObjRec);
-
             ProcessMessage(jsonObjRec);
 
          } while (active);
@@ -164,19 +161,16 @@ public class ChatServerThread implements Runnable
       {
          case ("1"):
          {
-            // This needs to compare the incoming login details to the
-            // corresponding values in the database, where email address is used
-            // to lookup.
+            // This compares the incoming login details to the corresponding
+            // values in the database, where email address is used to lookup.
 
-            System.out.println("Reached case 1");
-            
             JSONObject jsonObjIdInit = new JSONObject();
             jsonObjIdInit.put("type", "identitychange");
             try
             {
-            	clientCount++;
-            	
-            	for (int i = 0; i < clientCount; i++)
+               clientCount++;
+
+               for (int i = 0; i < clientCount; i++)
                {
                   if (ChatServerMain.getUser(i).equals(this))
                   {
@@ -191,17 +185,19 @@ public class ChatServerThread implements Runnable
                   // if (emailIn.equals(email) && passwordIn.equals(password)) {
                   authenticated = true;
 
+                  // Adds identity from database to the IdentityChange dummy
+                  // message, sets identity to empty string so IdentityChange
+                  // method is in the correct state to facilitate identity
+                  // initialisation at the client.
+
                   jsonObjIdInit.put("identity", identity);
                   identity = "";
-                  
-                  System.out.println("Case 1 identity change");
-                  System.out.println(jsonObjIdInit);
-                  
+
                   IdentityChange(jsonObjIdInit);
                }
                else
                {
-                  // Login failure can be indicated by return an empty identity.
+                  // Login failure is indicated by returning an empty identity.
                   identity = "";
                   jsonObjIdInit.put("identity", identity);
                   loginSuccess = false;
@@ -234,7 +230,7 @@ public class ChatServerThread implements Runnable
             password = jsonObjRec.get("password").toString();
 
             authenticated = true;
-            
+
             // Generate unique salt for this new guest
             try
             {
@@ -263,7 +259,7 @@ public class ChatServerThread implements Runnable
                   passwordEncrytedByte = ChatServerMain
                            .getEncryptedPassword(password, salt);
                }
-               
+
                // Initial login produces assigned guestId.
                CreateName();
                ChatServerMain.writeToFile(email, salt, passwordEncrytedByte,
@@ -281,7 +277,7 @@ public class ChatServerThread implements Runnable
             {
                e.printStackTrace();
             }
-            
+
             break;
          }
 
@@ -317,7 +313,7 @@ public class ChatServerThread implements Runnable
       do
       {
          test = false;
-         
+
          // Checks is any authorised user has reserved the guestX username.
          if (ChatServerMain.authUserExists("guest" + minInt))
          {
@@ -345,7 +341,7 @@ public class ChatServerThread implements Runnable
       JSONObject jsonObjIdInit = new JSONObject();
       jsonObjIdInit.put("type", "identitychange");
       jsonObjIdInit.put("identity", idInit);
-      
+
       clientCount++;
 
       IdentityChange(jsonObjIdInit);
@@ -517,7 +513,7 @@ public class ChatServerThread implements Runnable
          {
             ChatServerMain.updateAuthUserIdentity(identity, newIdentity);
          }
-         
+
          // Updates the identity attribute of the client.
          identity = jsonObjRec.get("identity").toString();
 
@@ -975,8 +971,6 @@ public class ChatServerThread implements Runnable
    {
       try
       {
-         System.out.println("Message out server:");
-         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
          out.flush();
       }

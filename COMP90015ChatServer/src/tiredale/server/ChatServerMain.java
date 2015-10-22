@@ -58,7 +58,7 @@ public class ChatServerMain
    // Method required to enable command line parser.
    public void doMain(String[] args) throws IOException
    {
-      System.out.println("Server in connecting");
+      System.out.println("Server in running.");
 
       CmdLineParser parser = new CmdLineParser(this);
       File file = new File("database.data");
@@ -142,6 +142,7 @@ public class ChatServerMain
             serverSocket.close();
       }
 
+      System.out.println("Server in closed.");
    }
 
    // Getter and setter-like methods for accessing and modifying object
@@ -173,7 +174,6 @@ public class ChatServerMain
 
    public synchronized static void addAuthUserIdentity(String newIdentity)
    {
-      System.out.println("Adding " + newIdentity + " to auth list");
       authenticatedUserList.add(newIdentity);
    }
 
@@ -181,11 +181,8 @@ public class ChatServerMain
                                                           String formerIdentity,
                                                           String newIdentity)
    {
-      System.out.println("Replacing " + formerIdentity + " with "
-                         + newIdentity + " to auth list");
       authenticatedUserList.remove(formerIdentity);
       authenticatedUserList.add(newIdentity);
-      System.out.println(authenticatedUserList);
 
       // Save new identity store in database
       try
@@ -194,8 +191,7 @@ public class ChatServerMain
       }
       catch (IOException e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+         System.out.println("Error in database. Details may not be updated.");
       }
 
    }
@@ -222,8 +218,6 @@ public class ChatServerMain
                                                    byte[] salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException
    {
-      System.out.println(encryptedPassword + " salt " + salt);
-
       // Encrypt the clear-text password using the same salt that was used to
       // encrypt the original password
       byte[] encryptedAttemptedPassword =

@@ -91,8 +91,6 @@ public class ChatClientSocketThread implements Runnable
             readJSONInput(jsonObjIn);
          }
 
-         
-         
          in.close();
          out.close();
          socket.close();
@@ -152,7 +150,6 @@ public class ChatClientSocketThread implements Runnable
                      .println("Please enter the email address you wish to use to login: ");
             emailSc = ChatClientMain.sc.nextLine();
             System.out.println("Please enter a new password: ");
-            // POSSIBLE VERIFY PASSWORD
             passwordSc = ChatClientMain.sc.nextLine();
 
             jsonObjLogin.put("email", emailSc.toLowerCase());
@@ -211,9 +208,6 @@ public class ChatClientSocketThread implements Runnable
    public void readJSONInput(JSONObject jsonObjIn) throws IOException
    {
       // Processes incoming message depending on type.
-      
-      //System.out.println("Message client in");
-      //System.out.println(jsonObjIn);
 
       switch ((String) jsonObjIn.get("type"))
       {
@@ -385,7 +379,8 @@ public class ChatClientSocketThread implements Runnable
       }
 
       // This case only occurs if the user logs in for the first time.
-      else if (JSONFormerIdentity.equals("") && JSONIdentity.equals(currentUserId))
+      else if (JSONFormerIdentity.equals("") &&
+               JSONIdentity.equals(currentUserId))
       {
          currentRoom = "MainHall";
          message = "Connected to " + serverAddress + " as " + currentUserId;
@@ -631,7 +626,7 @@ public class ChatClientSocketThread implements Runnable
    }
 
    private static void SendMessage(String message, OutputStreamWriter out)
-   {    
+   {
       // Message will be on the command line when sent.
       // Generate JSON object for message to send to server.
       JSONObject jsonObjSent = new JSONObject();
@@ -640,9 +635,6 @@ public class ChatClientSocketThread implements Runnable
 
       // Send message to server.
       SendJsonObject(jsonObjSent, out);
-      
-      System.out.println("Message client out");
-      System.out.println(jsonObjSent);
    }
 
    private void ReceiveMessage(JSONObject jsonObjSent)
@@ -656,8 +648,6 @@ public class ChatClientSocketThread implements Runnable
    {
       try
       {
-         System.out.println("Message client out");
-         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
          out.flush();
       }
