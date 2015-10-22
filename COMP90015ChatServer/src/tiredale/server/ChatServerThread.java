@@ -168,6 +168,8 @@ public class ChatServerThread implements Runnable
             // corresponding values in the database, where email address is used
             // to lookup.
 
+            System.out.println("Reached case 1");
+            
             JSONObject jsonObjIdInit = new JSONObject();
             jsonObjIdInit.put("type", "identitychange");
             try
@@ -187,12 +189,13 @@ public class ChatServerThread implements Runnable
                                                salt))
                {
                   // if (emailIn.equals(email) && passwordIn.equals(password)) {
-                  loginSuccess = true;
                   authenticated = true;
 
                   jsonObjIdInit.put("identity", identity);
-
+                  identity = "";
                   
+                  System.out.println("Case 1 identity change");
+                  System.out.println(jsonObjIdInit);
                   
                   IdentityChange(jsonObjIdInit);
                }
@@ -972,8 +975,8 @@ public class ChatServerThread implements Runnable
    {
       try
       {
-         // System.out.println("Message out server:");
-         // System.out.println(jsonObjSent);
+         System.out.println("Message out server:");
+         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
          out.flush();
       }

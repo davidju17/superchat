@@ -656,6 +656,8 @@ public class ChatClientSocketThread implements Runnable
    {
       try
       {
+         System.out.println("Message client out");
+         System.out.println(jsonObjSent);
          out.write(jsonObjSent.toString() + "\n");
          out.flush();
       }
