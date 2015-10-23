@@ -142,6 +142,13 @@ public class ChatClientSocketThread implements Runnable
 
             SendJsonObject(jsonObjLogin, out);
             loginDetailsResponse();
+
+            if (!loginStatus)
+            {
+               System.out.println("The credentials you have supplied are incorrect. Please try again.");
+               System.out.println();
+            }
+
             break;
          }
          case "2":
@@ -158,6 +165,14 @@ public class ChatClientSocketThread implements Runnable
 
             SendJsonObject(jsonObjLogin, out);
             loginDetailsResponse();
+            
+            if (!loginStatus)
+            {
+               System.out.println("There is already an account associated with that email address.");
+               System.out.println("Please login using your existing password.");
+               System.out.println();
+            }
+
             break;
          }
          case "3":
@@ -191,18 +206,22 @@ public class ChatClientSocketThread implements Runnable
       // Need to put that message into readJSONObject method.
       currentUserId = jsonObjIn.get("identity").toString();
 
-      if (!currentUserId.equals("") || !currentUserId.equals("0"))
+      if (!currentUserId.equals(""))
       {
          loginStatus = true;
-      }
 
-      try
-      {
-         readJSONInput(jsonObjIn);
+         try
+         {
+            readJSONInput(jsonObjIn);
+         }
+         catch (IOException e)
+         {
+         }
       }
-      catch (IOException e)
-      {
-      }
+      // else
+      // {
+      //
+      // }
    }
 
    public void readJSONInput(JSONObject jsonObjIn) throws IOException
@@ -358,13 +377,14 @@ public class ChatClientSocketThread implements Runnable
       // Check if newidentity message is meant for this user.
       if (JSONFormerIdentity.equals(currentUserId))
       {
-         if (JSONFormerIdentity.equals(""))
-         {
-            message =
-                     "The credentials you have supplied are incorrect. Please try again.";
-         }
-
-         else if (JSONFormerIdentity.equals(JSONIdentity))
+         // if (JSONFormerIdentity.equals(""))
+         // {
+         // message =
+         // "The credentials you have supplied are incorrect. Please try again.";
+         // }
+         //
+         // else
+         if (JSONFormerIdentity.equals(JSONIdentity))
          {
             message = "Requested identity invalid or in use";
          }
