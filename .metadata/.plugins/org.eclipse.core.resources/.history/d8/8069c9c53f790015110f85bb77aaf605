@@ -173,26 +173,16 @@ public class ChatServerThread implements Runnable
             jsonObjIdInit.put("type", "newidentity");
             try
             {
-            	if(ChatServerMain.dataBaseLength()==0){
-            		
-            		ChatServerMain
-                                .readFile(emailIn, ChatServerMain.getUser(0));
-            		
-            	}else{
-            		 for (int i = 0; i < ChatServerMain.dataBaseLength(); i++)
-                     {
-                        if (ChatServerMain.getUser(i).equals(this))
-                        {
-                           ChatServerMain
-                                    .readFile(emailIn, ChatServerMain.getUser(i));
-                           break;
-                        }
-                     }
-            		
-            		
-            	}
 
-              
+               for (int i = 0; i < ChatServerMain.dataBaseLength(); i++)
+               {
+                  if (ChatServerMain.getUser(i).equals(this))
+                  {
+                     ChatServerMain
+                              .readFile(emailIn, ChatServerMain.getUser(i));
+                     break;
+                  }
+               }
                if (ChatServerMain.authenticate(passwordIn, encryptedPassword,
                                                salt))
                {
