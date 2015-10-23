@@ -138,13 +138,6 @@ public class ChatClientSocketThread implements Runnable
          {
             System.out.println("Please enter your email address: ");
             emailSc = ChatClientMain.sc.nextLine();
-            
-            while(!rfc2822.matcher(emailSc).matches()) {            	
-            	
-            	System.out.println("Please enter a valid email address example david@hotmail.com");
-            	emailSc = ChatClientMain.sc.nextLine();          	
-                
-            }
             System.out.println("Please enter your password: ");
             passwordSc = ChatClientMain.sc.nextLine();
 
