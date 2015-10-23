@@ -5,9 +5,10 @@
 <fullyQualifiedTypeName name="java.io.FileInputStream"/>
 <fullyQualifiedTypeName name="java.nio.charset.StandardCharsets"/>
 <fullyQualifiedTypeName name="java.io.InputStreamReader"/>
-<fullyQualifiedTypeName name="tiredale.server.ChatServerThread"/>
 <fullyQualifiedTypeName name="tiredale.server.ChatServerMain"/>
 <fullyQualifiedTypeName name="com.google.common.primitives.Bytes"/>
 <fullyQualifiedTypeName name="java.io.FileWriter"/>
 <fullyQualifiedTypeName name="java.io.FileReader"/>
+<fullyQualifiedTypeName name="javax.sql.rowset.spi.SyncResolver"/>
+<fullyQualifiedTypeName name="tiredale.server.ChatServerThread"/>
 </qualifiedTypeNameHistroy>

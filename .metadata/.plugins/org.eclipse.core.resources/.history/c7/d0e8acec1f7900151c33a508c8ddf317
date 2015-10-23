@@ -62,8 +62,6 @@ public class ChatServerMain {
 
 		try {
 			parser.parseArgument(args);
-			loadDataBase();
-			
 		} catch (CmdLineException e) {
 			// In case wrong argument entered.
 			System.err.println(e.getMessage());

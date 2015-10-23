@@ -10,6 +10,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -62,8 +63,6 @@ public class ChatServerMain {
 
 		try {
 			parser.parseArgument(args);
-			loadDataBase();
-			
 		} catch (CmdLineException e) {
 			// In case wrong argument entered.
 			System.err.println(e.getMessage());
@@ -340,17 +339,13 @@ public class ChatServerMain {
 
 		BufferedReader br = null;
 		String line = "";
-		int count=0;
 
 		br = new BufferedReader(new FileReader("database.data"));
 
 		while ((line = br.readLine()) != null) {
-			count++;
+
+			clientList.add(null);
 		}
-		System.out.println(count);
-		count=count/4;
-		System.out.println(count);
-		ChatServerThread.setClientCount(count);
 
 		br.close();
 
