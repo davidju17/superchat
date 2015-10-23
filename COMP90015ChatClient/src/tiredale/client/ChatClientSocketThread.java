@@ -191,7 +191,7 @@ public class ChatClientSocketThread implements Runnable
       // Need to put that message into readJSONObject method.
       currentUserId = jsonObjIn.get("identity").toString();
 
-      if (!currentUserId.equals(""))
+      if (!currentUserId.equals("") || !currentUserId.equals("0"))
       {
          loginStatus = true;
       }

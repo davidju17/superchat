@@ -59,9 +59,11 @@ public class ChatServerThread implements Runnable
    {
       this.identity = identity;
    }
-   public static void setClientCount(int clientCount) {
-		ChatServerThread.clientCount = clientCount;
-	}
+
+   public static void setClientCount(int clientCount)
+   {
+      ChatServerThread.clientCount = clientCount;
+   }
 
    Boolean active;
 
@@ -168,10 +170,10 @@ public class ChatServerThread implements Runnable
             // values in the database, where email address is used to lookup.
 
             JSONObject jsonObjIdInit = new JSONObject();
-            jsonObjIdInit.put("type", "identitychange");
+            jsonObjIdInit.put("type", "newidentity");
             try
             {
-               
+
                for (int i = 0; i < ChatServerMain.dataBaseLength(); i++)
                {
                   if (ChatServerMain.getUser(i).equals(this))
@@ -194,9 +196,9 @@ public class ChatServerThread implements Runnable
                   // initialisation at the client.
 
                   jsonObjIdInit.put("identity", identity);
-                  identity = "";
-
-                  IdentityChange(jsonObjIdInit);
+                  jsonObjIdInit.put("former", "");
+                  
+                  SendJsonObject(jsonObjIdInit, out);
                }
                else
                {
@@ -204,7 +206,7 @@ public class ChatServerThread implements Runnable
                   identity = "";
                   jsonObjIdInit.put("identity", identity);
                   loginSuccess = false;
-                  IdentityChange(jsonObjIdInit);
+                  SendJsonObject(jsonObjIdInit, out);
                }
 
             }
@@ -230,67 +232,68 @@ public class ChatServerThread implements Runnable
             // local variables for saving to database.
             email = jsonObjRec.get("email").toString();
             password = jsonObjRec.get("password").toString();
-            
-            if(ChatServerMain.authEmailExists(email)){
-            	
-            //Tiiiiiiiiimmmmmmmmmmmmmm
-            	
-            	System.out.println("Account with this email already exists. Please login with your existing password.");
-            }else{
-            	
-            	 authenticated = true;
 
-                 // Generate unique salt for this new guest
-                 try
-                 {
-                    byte[] salt = ChatServerMain.generateSalt();
+            if (ChatServerMain.authEmailExists(email))
+            {
+               JSONObject jsonObjIdInit = new JSONObject();
+               jsonObjIdInit.put("type", "identitychange");
+               jsonObjIdInit.put("identity", "0");
+               
+               IdentityChange(jsonObjIdInit);
+            }
+            else
+            {
+               authenticated = true;
 
-                    // EncryptedPassword
-                    byte[] passwordEncrytedByte = ChatServerMain
-                             .getEncryptedPassword(password, salt);
+               // Generate unique salt for this new guest
+               try
+               {
+                  byte[] salt = ChatServerMain.generateSalt();
 
-                    // check if there is any newline byte in encrypted password or
-                    // salt byte array
-                    // if there is any generate new one until but does not contains
-                    // any newline byte
-                    // and save in file for properly decodification.
-                    byte newLine = (byte) '\n';
-                    byte newLine2 = (byte) '\r';
+                  // EncryptedPassword
+                  byte[] passwordEncrytedByte = ChatServerMain
+                           .getEncryptedPassword(password, salt);
 
-                    while (Bytes.contains(passwordEncrytedByte, newLine) ||
-                           Bytes.contains(salt, newLine) ||
-                           Bytes.contains(passwordEncrytedByte, newLine2) ||
-                           Bytes.contains(salt, newLine2))
-                    {
-                       // generate new salt
-                       salt = ChatServerMain.generateSalt();
-                       // generate new EncryptedPassword
-                       passwordEncrytedByte = ChatServerMain
-                                .getEncryptedPassword(password, salt);
-                    }
+                  // check if there is any newline byte in encrypted password or
+                  // salt byte array
+                  // if there is any generate new one until but does not
+                  // contains
+                  // any newline byte
+                  // and save in file for properly decodification.
+                  byte newLine = (byte) '\n';
+                  byte newLine2 = (byte) '\r';
 
-                    // Initial login produces assigned guestId.
-                    CreateName();
-                    ChatServerMain.writeToFile(email, salt, passwordEncrytedByte,
-                                               identity);
-                 }
-                 catch (NoSuchAlgorithmException e)
-                 {
-                    e.printStackTrace();
-                 }
-                 catch (InvalidKeySpecException e)
-                 {
-                    e.printStackTrace();
-                 }
-                 catch (IOException e)
-                 {
-                    e.printStackTrace();
-                 }           	
-            	
-            	
-            }//close else
+                  while (Bytes.contains(passwordEncrytedByte, newLine) ||
+                         Bytes.contains(salt, newLine) ||
+                         Bytes.contains(passwordEncrytedByte, newLine2) ||
+                         Bytes.contains(salt, newLine2))
+                  {
+                     // generate new salt
+                     salt = ChatServerMain.generateSalt();
+                     // generate new EncryptedPassword
+                     passwordEncrytedByte = ChatServerMain
+                              .getEncryptedPassword(password, salt);
+                  }
 
-           
+                  // Initial login produces assigned guestId.
+                  CreateName();
+                  ChatServerMain.writeToFile(email, salt, passwordEncrytedByte,
+                                             identity);
+               }
+               catch (NoSuchAlgorithmException e)
+               {
+                  e.printStackTrace();
+               }
+               catch (InvalidKeySpecException e)
+               {
+                  e.printStackTrace();
+               }
+               catch (IOException e)
+               {
+                  e.printStackTrace();
+               }
+
+            }// close else
 
             break;
          }
@@ -1047,7 +1050,5 @@ public class ChatServerThread implements Runnable
       ChatServerMain.delUser(userRemove);
       clientCount--;
    }
-
-
 
 }
