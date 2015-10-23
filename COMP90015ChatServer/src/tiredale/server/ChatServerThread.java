@@ -207,6 +207,8 @@ public class ChatServerThread implements Runnable
 
                   jsonObjIdInit.put("identity", identity);
                   jsonObjIdInit.put("former", "");
+                  
+                  ChatServerMain.addAuthUserIdentity(identity);
 
                   SendJsonObject(jsonObjIdInit, out);
                }
@@ -215,6 +217,7 @@ public class ChatServerThread implements Runnable
                   // Login failure is indicated by returning an empty identity.
                   jsonObjIdInit.put("identity", "");
                   jsonObjIdInit.put("former", "");
+                  identity = "";
                   loginSuccess = false;
                   SendJsonObject(jsonObjIdInit, out);
                }
@@ -369,9 +372,9 @@ public class ChatServerThread implements Runnable
       JSONObject jsonObjIdInit = new JSONObject();
       jsonObjIdInit.put("type", "identitychange");
       jsonObjIdInit.put("identity", idInit);
-
+      
       clientCount++;
-
+      
       IdentityChange(jsonObjIdInit);
    }
 

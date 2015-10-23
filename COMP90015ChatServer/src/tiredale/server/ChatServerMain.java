@@ -66,7 +66,7 @@ public class ChatServerMain
    // Method required to enable command line parser.
    public void doMain(String[] args) throws IOException
    {
-      System.out.println("Server in running.");
+      System.out.println("Server is running.");
 
       CmdLineParser parser = new CmdLineParser(this);
       File file = new File("database.data");
@@ -151,7 +151,7 @@ public class ChatServerMain
             serverSocket.close();
       }
 
-      System.out.println("Server in closed.");
+      System.out.println("Server is closed.");
    }
 
    // Getter and setter-like methods for accessing and modifying object

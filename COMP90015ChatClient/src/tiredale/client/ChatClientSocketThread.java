@@ -65,6 +65,8 @@ public class ChatClientSocketThread implements Runnable
 
          synchronized (ChatClientMain.lock)
          {
+            System.out
+                     .println("Welcome to chat. Please select from the items below:");
             while (!loginStatus)
             {
                clientLoginDetails();
@@ -114,8 +116,6 @@ public class ChatClientSocketThread implements Runnable
       String passwordSc;
 
       System.out
-               .println("Welcome to chat. Please select from the items below:");
-      System.out
                .println("- If you are an exising user press 1 to login.");
       System.out
                .println("- If you are a new user press 2 to create an account.");
@@ -145,7 +145,9 @@ public class ChatClientSocketThread implements Runnable
 
             if (!loginStatus)
             {
-               System.out.println("The credentials you have supplied are incorrect. Please try again.");
+               System.out.println();
+               System.out
+                        .println("The credentials you have supplied are incorrect. Please try again.");
                System.out.println();
             }
 
@@ -165,10 +167,11 @@ public class ChatClientSocketThread implements Runnable
 
             SendJsonObject(jsonObjLogin, out);
             loginDetailsResponse();
-            
+
             if (!loginStatus)
             {
-               System.out.println("There is already an account associated with that email address.");
+               System.out
+                        .println("There is already an account associated with that email address.");
                System.out.println("Please login using your existing password.");
                System.out.println();
             }
@@ -204,10 +207,11 @@ public class ChatClientSocketThread implements Runnable
       jsonObjIn = ReceiveJsonObject(in);
 
       // Need to put that message into readJSONObject method.
-      currentUserId = jsonObjIn.get("identity").toString();
 
-      if (!currentUserId.equals(""))
+      if (!jsonObjIn.get("identity").toString().equals(""))
       {
+         currentUserId = jsonObjIn.get("identity").toString();
+         
          loginStatus = true;
 
          try
@@ -688,7 +692,7 @@ public class ChatClientSocketThread implements Runnable
       try
       {
          response = in.readLine();
-         Object obj = JSONValue.parse(response);
+         Object obj = JSONValue.parse(response);         
          jsonObjRec = (JSONObject) obj;
       }
       catch (IOException e)
@@ -697,6 +701,7 @@ public class ChatClientSocketThread implements Runnable
          jsonObjRec.put("type", "Error");
          // Socket closed on server side.
       }
+      
       return jsonObjRec;
    }
 
