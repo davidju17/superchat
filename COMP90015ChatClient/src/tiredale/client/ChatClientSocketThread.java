@@ -75,7 +75,10 @@ public class ChatClientSocketThread implements Runnable
 
             // Tell server to open scanner thread for asynchronous message
             // receipt.
-            ChatClientMain.lock.notify();
+            if (!quitNotifier)
+            {
+               ChatClientMain.lock.notify();
+            }
          }
 
          // While loop used to take commands from command line. Executes until
@@ -110,10 +113,11 @@ public class ChatClientSocketThread implements Runnable
       }
    }
 
-   private static final Pattern rfc2822 = Pattern.compile(
-	        "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
-	);
-   
+   private static final Pattern rfc2822 =
+            Pattern.compile(
+                     "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+                     );
+
    public void clientLoginDetails()
    {
       String option;
@@ -138,12 +142,14 @@ public class ChatClientSocketThread implements Runnable
          {
             System.out.println("Please enter your email address: ");
             emailSc = ChatClientMain.sc.nextLine();
-            
-            while(!rfc2822.matcher(emailSc).matches()) {            	
-            	
-            	System.out.println("Please enter a valid email address example david@hotmail.com");
-            	emailSc = ChatClientMain.sc.nextLine();          	
-                
+
+            while (!rfc2822.matcher(emailSc).matches())
+            {
+
+               System.out
+                        .println("Please enter a valid email address example david@hotmail.com");
+               emailSc = ChatClientMain.sc.nextLine();
+
             }
             System.out.println("Please enter your password: ");
             passwordSc = ChatClientMain.sc.nextLine();
@@ -170,12 +176,14 @@ public class ChatClientSocketThread implements Runnable
             System.out
                      .println("Please enter the email address you wish to use to login: ");
             emailSc = ChatClientMain.sc.nextLine();
-            
-            while(!rfc2822.matcher(emailSc).matches()) {            	
-            	
-            	System.out.println("Please enter a valid email address example david@hotmail.com");
-            	emailSc = ChatClientMain.sc.nextLine();          	
-                
+
+            while (!rfc2822.matcher(emailSc).matches())
+            {
+
+               System.out
+                        .println("Please enter a valid email address example david@hotmail.com");
+               emailSc = ChatClientMain.sc.nextLine();
+
             }
             System.out.println("Please enter a new password: ");
             passwordSc = ChatClientMain.sc.nextLine();
@@ -226,20 +234,29 @@ public class ChatClientSocketThread implements Runnable
       jsonObjIn = ReceiveJsonObject(in);
 
       // Need to put that message into readJSONObject method.
-
-      if (!jsonObjIn.get("identity").toString().equals(""))
+      try
       {
-         currentUserId = jsonObjIn.get("identity").toString();
-         
-         loginStatus = true;
+         if (!jsonObjIn.get("identity").toString().equals(""))
+         {
+            currentUserId = jsonObjIn.get("identity").toString();
 
-         try
-         {
-            readJSONInput(jsonObjIn);
+            loginStatus = true;
+
+            try
+            {
+               readJSONInput(jsonObjIn);
+            }
+            catch (IOException e)
+            {
+            }
          }
-         catch (IOException e)
-         {
-         }
+      }
+      catch (NullPointerException n)
+      {
+         System.out
+                  .println("You do not appear to have the permission to access the chat system.");
+         loginStatus = true;
+         quitNotifier = true;
       }
       // else
       // {
@@ -711,7 +728,7 @@ public class ChatClientSocketThread implements Runnable
       try
       {
          response = in.readLine();
-         Object obj = JSONValue.parse(response);         
+         Object obj = JSONValue.parse(response);
          jsonObjRec = (JSONObject) obj;
       }
       catch (IOException e)
@@ -720,7 +737,7 @@ public class ChatClientSocketThread implements Runnable
          jsonObjRec.put("type", "Error");
          // Socket closed on server side.
       }
-      
+
       return jsonObjRec;
    }
 

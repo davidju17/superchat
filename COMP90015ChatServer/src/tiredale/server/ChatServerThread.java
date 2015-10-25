@@ -169,74 +169,96 @@ public class ChatServerThread implements Runnable
             // This compares the incoming login details to the corresponding
             // values in the database, where email address is used to lookup.
 
+            // First check if user with that email is already connected.
+            for (int i = 0; i < clientCount; i++)
+            {
+               if (ChatServerMain.getUser(i).getEmail().equals(emailIn))
+               {
+                  loginSuccess = false;
+                  break;
+               }
+            }
             JSONObject jsonObjIdInit = new JSONObject();
             jsonObjIdInit.put("type", "newidentity");
-            try
+            if (loginSuccess)
             {
-            	if(ChatServerMain.dataBaseLength()==0){
-            		
-            		ChatServerMain
-                                .readFile(emailIn, ChatServerMain.getUser(0));
-            		
-            	}else{
-            		 for (int i = 0; i < ChatServerMain.dataBaseLength(); i++)
+               try
+               {
+                  if (ChatServerMain.dataBaseLength() == 0)
+                  {
+
+                     ChatServerMain
+                              .readFile(emailIn, ChatServerMain.getUser(0));
+
+                  }
+                  else
+                  {
+                     for (int i = 0; i < ChatServerMain.dataBaseLength(); i++)
                      {
                         if (ChatServerMain.getUser(i).equals(this))
                         {
                            ChatServerMain
-                                    .readFile(emailIn, ChatServerMain.getUser(i));
+                                    .readFile(emailIn,
+                                              ChatServerMain.getUser(i));
                            break;
                         }
                      }
-            		
-            		
-            	}
 
-              
-               if (ChatServerMain.authenticate(passwordIn, encryptedPassword,
-                                               salt))
-               {
-                  // if (emailIn.equals(email) && passwordIn.equals(password)) {
-                  authenticated = true;
-                  clientCount++;
+                  }
 
-                  // Adds identity from database to the IdentityChange dummy
-                  // message, sets identity to empty string so IdentityChange
-                  // method is in the correct state to facilitate identity
-                  // initialisation at the client.
+                  if (ChatServerMain.authenticate(passwordIn,
+                                                  encryptedPassword,
+                                                  salt))
+                  {
+                     authenticated = true;
+                     clientCount++;
 
-                  jsonObjIdInit.put("identity", identity);
-                  jsonObjIdInit.put("former", "");
-                  
-                  ChatServerMain.addAuthUserIdentity(identity);
+                     // Adds identity from database to the IdentityChange dummy
+                     // message, sets identity to empty string so IdentityChange
+                     // method is in the correct state to facilitate identity
+                     // initialisation at the client.
 
-                  SendJsonObject(jsonObjIdInit, out);
+                     email = emailIn;
+
+                     jsonObjIdInit.put("identity", identity);
+                     jsonObjIdInit.put("former", "");
+
+                     ChatServerMain.addAuthUserIdentity(identity);
+
+                     SendJsonObject(jsonObjIdInit, out);
+                  }
+                  else
+                  {
+                     // Login failure is indicated by returning an empty
+                     // identity.
+                     jsonObjIdInit.put("identity", "");
+                     jsonObjIdInit.put("former", "");
+                     identity = "";
+                     loginSuccess = false;
+                     SendJsonObject(jsonObjIdInit, out);
+                  }
+
                }
-               else
+               catch (IOException e)
                {
-                  // Login failure is indicated by returning an empty identity.
-                  jsonObjIdInit.put("identity", "");
-                  jsonObjIdInit.put("former", "");
-                  identity = "";
-                  loginSuccess = false;
-                  SendJsonObject(jsonObjIdInit, out);
+                  e.printStackTrace();
+
                }
-
+               catch (NoSuchAlgorithmException e)
+               {
+                  e.printStackTrace();
+               }
+               catch (InvalidKeySpecException e)
+               {
+                  e.printStackTrace();
+               }
             }
-            catch (IOException e)
-            {
-               e.printStackTrace();
-
+            else {
+               jsonObjIdInit.put("identity", "");
+               jsonObjIdInit.put("former", "");
+               identity = "";
+               SendJsonObject(jsonObjIdInit, out);
             }
-            catch (NoSuchAlgorithmException e)
-            {
-               e.printStackTrace();
-            }
-            catch (InvalidKeySpecException e)
-            {
-               e.printStackTrace();
-            }
-
             break;
          }
          case ("2"):
@@ -252,7 +274,7 @@ public class ChatServerThread implements Runnable
                jsonObjIdInit.put("identity", "");
                jsonObjIdInit.put("former", "");
                loginSuccess = false;
-               
+
                SendJsonObject(jsonObjIdInit, out);
             }
             else
@@ -372,9 +394,9 @@ public class ChatServerThread implements Runnable
       JSONObject jsonObjIdInit = new JSONObject();
       jsonObjIdInit.put("type", "identitychange");
       jsonObjIdInit.put("identity", idInit);
-      
+
       clientCount++;
-      
+
       IdentityChange(jsonObjIdInit);
    }
 
@@ -970,6 +992,11 @@ public class ChatServerThread implements Runnable
    public synchronized String getRoom()
    {
       return this.room;
+   }
+
+   public synchronized String getEmail()
+   {
+      return this.email;
    }
 
    public synchronized void setRoom(String newRoomId)

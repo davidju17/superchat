@@ -30,7 +30,6 @@ import org.kohsuke.args4j.Option;
 
 import java.io.File;
 
-
 public class ChatServerMain
 {
    // Array list for storing references to server-side ChatServerThread for
@@ -43,12 +42,12 @@ public class ChatServerMain
    private static ArrayList<String> authenticatedUserList =
             new ArrayList<String>();
    private static ArrayList<String> authenticatedEmailList =
-           new ArrayList<String>();
-   
-   
-   public synchronized static int dataBaseLength(){
-	return authenticatedUserList.size();
-	   
+            new ArrayList<String>();
+
+   public synchronized static int dataBaseLength()
+   {
+      return authenticatedUserList.size();
+
    }
 
    // Allows for port option at command line.
@@ -93,8 +92,7 @@ public class ChatServerMain
       System.setProperty("javax.net.ssl.keyStorePassword", "12345678");
 
       // Create server socket and initalises the system ready to accept
-      // incomign
-      // connections from clients.
+      // incoming connections from clients.
       SSLServerSocket serverSocket = null;
 
       roomList.add(new ChatServerRoom("MainHall", ""));
@@ -115,13 +113,10 @@ public class ChatServerMain
             // socket.
             SSLSocket socket = (SSLSocket) serverSocket.accept();
             // When new incoming connection the server instantiates a new
-            // Socket
-            // and passes the new connection to this socket.
-            // The new socket dedicated to this client is then passed to a
-            // new
-            // thread which is defined by the ChatServerThread class which
-            // takes
-            // the new socket as a constructor argument.
+            // SSLSocket and passes the new connection to this socket.
+            // The new SSLSocket dedicated to this client is then passed to a
+            // new thread which is defined by the ChatServerThread class which
+            // takes the new socket as a constructor argument.
             clientList.add(new ChatServerThread(socket));
 
             // We now have a new thread solely dedicated to the recently
@@ -140,8 +135,7 @@ public class ChatServerMain
       catch (SocketException e)
       {
          // Occurs if client connection is not accepted. In this case no
-         // state
-         // information of the user has been initilaised so no action is
+         // state information of the user has been initilised so no action is
          // necessary.
       }
 
@@ -180,6 +174,7 @@ public class ChatServerMain
          return false;
       }
    }
+
    public synchronized static Boolean authEmailExists(String email)
    {
       if (authenticatedEmailList.contains(email))
@@ -191,7 +186,6 @@ public class ChatServerMain
          return false;
       }
    }
-
 
    public synchronized static void addAuthUserIdentity(String newIdentity)
    {
@@ -408,28 +402,33 @@ public class ChatServerMain
       bw.close();
 
    }
+
    // method to load information from database into server
-	public void loadDataBase() throws IOException {
+   public void loadDataBase() throws IOException
+   {
 
-		BufferedReader br = null;
-		String line = "";
-		int count=0;
+      BufferedReader br = null;
+      String line = "";
+      int count = 0;
 
-		br = new BufferedReader(new FileReader("database.data"));
+      br = new BufferedReader(new FileReader("database.data"));
 
-		while ((line = br.readLine()) != null) {
-			count++;
-			if(count % 4==1){
-				authenticatedEmailList.add(line);
-				
-			}
-			if(count % 4==0){
-				authenticatedUserList.add(line);				
-			}
-		}
-		
-		br.close();
+      while ((line = br.readLine()) != null)
+      {
+         count++;
+         if (count % 4 == 1)
+         {
+            authenticatedEmailList.add(line);
 
-	}
+         }
+         if (count % 4 == 0)
+         {
+            authenticatedUserList.add(line);
+         }
+      }
+
+      br.close();
+
+   }
 
 }

@@ -11,7 +11,7 @@ import org.kohsuke.args4j.Option;
 public class ChatClientMain
 {
    static Scanner sc = new Scanner(System.in);
-   
+
    // For command line argument input.
    @Argument(usage = "Hostname", required = true)
    private static String host;
@@ -43,15 +43,14 @@ public class ChatClientMain
          System.err.println(e.getMessage());
          parser.printUsage(System.err);
       }
-
+      
       // Creates ChatClientSocketThread to handle TCP interface.
       Thread sock = new Thread(new ChatClientSocketThread(host, port));
-//      
 
       try
       {
          synchronized (lock)
-         {           
+         {
             sock.start();
             // Wait for socket to indicate that login has been successful.
             lock.wait();
@@ -66,7 +65,7 @@ public class ChatClientMain
       // input.
       Thread scan = new Thread(new ChatClientScannerThread(sc));
       scan.start();
-
+      
       // Waits until both socket thread and scanner thread have ended before
       // terminating.
       try
